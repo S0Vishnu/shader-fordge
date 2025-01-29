@@ -4,6 +4,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import Hdri_Image from "../assets/hdr/canary_wharf_2k.hdr"; // Path to your HDRi image
+import { createGradientMaterial } from "./shaders/GradientShader";
 
 const Scene: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -53,18 +54,30 @@ const Scene: React.FC = () => {
         // Use HDRi for lighting (not as environment background)
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         const envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture;
-        
+
         // Reduce the intensity by multiplying with a scalar value
         const intensity = 1.2; // Adjust this value to reduce the intensity
-        
+
         // Set the scene's environment map and apply the intensity
         scene.environment = envMap;
         scene.environmentIntensity = intensity;
-        
+
+        const colors = [
+          new THREE.Color("#4d2695"),
+          new THREE.Color("#b699e9"),
+          new THREE.Color("#925df2"),
+        ];
 
         // Create a sphere geometry and material (Orange color)
         const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff7f00 }); // Orange color
+        const material = createGradientMaterial({
+          colors: colors,
+          distortion: true,
+          angle: 0,
+          smooth: true,
+          distortionStrength: .2,
+        });
+        // const material = new THREE.MeshStandardMaterial({ color: 0xff7f00 }); // Orange color
         const sphere = new THREE.Mesh(geometry, material);
         scene.add(sphere);
 
